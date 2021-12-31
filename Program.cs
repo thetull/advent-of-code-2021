@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace AdventOfCode2021
     {
         static void Main(string[] args)
         {
-            Day5B();
+            Day8();
         }
 
         static void Day1()
@@ -436,6 +437,197 @@ namespace AdventOfCode2021
             //         if (map[i, j] >= 2)
             //             result++;
             Console.WriteLine(result);
+        }
+
+        static void Day6A()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day6A.txt";
+            List<int> startingConditions = File.ReadAllLines(fileLocation).ToList()[0].Split(',').Select(int.Parse).ToList();
+
+            int[] fish = new int[9];
+
+            foreach (int startingCondition in startingConditions)
+            {
+                fish[startingCondition]++;
+            }
+
+            for (int i = 0; i < 80; i++)
+            {
+                int breeders = fish[0];
+                fish = fish.Skip(1).Append(breeders).ToArray();
+                fish[6] += breeders;
+            }
+
+            Console.WriteLine(fish.Sum());
+        }
+
+        static void Day6B()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day6A.txt";
+            List<int> startingConditions = File.ReadAllLines(fileLocation).ToList()[0].Split(',').Select(int.Parse).ToList();
+
+            long[] fish = new long[9];
+
+            foreach (int startingCondition in startingConditions)
+            {
+                fish[startingCondition]++;
+            }
+
+            for (int i = 0; i < 256; i++)
+            {
+                long breeders = fish[0];
+                fish = fish.Skip(1).Append(breeders).ToArray();
+                fish[6] += breeders;
+            }
+
+            Console.WriteLine(fish.Sum());
+        }
+
+        static void Day7A()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day7A.txt";
+            List<int> startingConditions = File.ReadAllLines(fileLocation).ToList()[0].Split(',').Select(int.Parse).ToList();
+
+            //int targetPosition = (int)Math.Round(Math.Sqrt(startingConditions.Average(x => x*x)));
+            int targetPosition = startingConditions.Min();
+            int bestResult = int.MaxValue;
+            int bestPosition = -1;
+            for (int i = startingConditions.Min(); i <= startingConditions.Max(); i++)
+            {
+                int result = startingConditions.Sum(x => Math.Abs(i - x));
+                if (result < bestResult)
+                {
+                    bestResult = result;
+                    bestPosition = i;
+                }
+            }
+            //int sum = startingConditions.Sum(x => Math.Abs(targetPosition - x));
+            
+            Console.WriteLine(bestResult);
+        }
+
+        static void Day7B()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day7A.txt";
+            List<int> startingConditions = File.ReadAllLines(fileLocation).ToList()[0].Split(',').Select(int.Parse).ToList();
+
+            //int targetPosition = (int)Math.Round(Math.Sqrt(startingConditions.Average(x => x*x)));
+            int targetPosition = startingConditions.Min();
+            int bestResult = int.MaxValue;
+            int bestPosition = -1;
+            for (int i = startingConditions.Min(); i <= startingConditions.Max(); i++)
+            {
+                int result = startingConditions.Sum(x => (Math.Abs(i - x)) * (Math.Abs(i - x) + 1) / 2);
+                if (result < bestResult)
+                {
+                    bestResult = result;
+                    bestPosition = i;
+                }
+            }
+            //int sum = startingConditions.Sum(x => Math.Abs(targetPosition - x));
+
+            Console.WriteLine(bestResult);
+        }
+
+        static void Day8()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day8.txt";
+            List<Tuple<List<string>, List<string>>> data = File.ReadAllLines(fileLocation).Select(x => x.Split(" | ", StringSplitOptions.RemoveEmptyEntries)).Select(x => new Tuple<List<string>, List<string>>(x[0].Split(' ').ToList(), x[1].Split(' ').ToList())).ToList();
+
+
+            List<string> results = data.Select(Disambiguate).ToList();
+
+            Console.WriteLine(results.Sum(x => x.Count(c => c=='1' || c=='4' || c=='7' || c=='8')));
+            Console.WriteLine(results.Sum(int.Parse));
+        }
+
+        static string Disambiguate(Tuple<List<string>, List<string>> input)
+        {
+            HashSet<int>[] possibleDigits = new HashSet<int>[10].Select(x => new HashSet<int>(new []{0,1,2,3,4,5,6,7,8,9})).ToArray();
+            HashSet<char>[] possibleSegments = new HashSet<char>[7].Select(x => new HashSet<char>(new[] { 'a','b','c','d','e','f','g' })).ToArray();
+
+            int[] segmentUsages = new[]{ 8, 6, 8, 7, 4, 9, 7 };
+
+            string[] validCombinations = { "abcefg", "cf", "acdeg", "acdfg", "bcdf", "abdfg", "abdefg", "acf", "abcdefg", "abcdfg" };
+
+            for (int i = 0; i < 10; i++)
+            {
+                int length = input.Item1[i].Length;
+                for (int j = 0; j < 10; j++)
+                {
+                    if (validCombinations[j].Length != length)
+                        possibleDigits[i].Remove(j);
+                }
+            }
+
+            Dictionary<int, int> possibleDigitsDict = new Dictionary<int, int>();
+
+            for (int i = 0; i < 10; i++)
+            {
+                if (possibleDigits[i].Count != 1)
+                    continue;
+                possibleDigitsDict[possibleDigits[i].First()] = i;
+            }
+
+            for (int i = 0; i < 7; i++)
+            {
+                char character = (char)('a' + i);
+                int frequency = input.Item1.Count(x => x.Contains(character));
+                for (int j = 0; j < 7; j++)
+                {
+                    if (segmentUsages[j] != frequency)
+                        possibleSegments[i].Remove((char)('a' + j));
+                }
+            }
+
+            for (int i = 0; i < 7; i++)
+            {
+                char character = (char)('a' + i);
+                if (possibleSegments[i].Count == 1)
+                    continue;
+                if (possibleSegments[i].Contains('c'))
+                {
+                    int onesIndex = possibleDigitsDict[1];
+                    if (input.Item1[onesIndex].Contains(character))
+                    {
+                        possibleSegments[i].Remove('a');
+                    }else
+                    {
+                        possibleSegments[i].Remove('c');
+                    }
+                }
+                else
+                {
+                    int foursIndex = possibleDigitsDict[4];
+                    if (input.Item1[foursIndex].Contains(character))
+                    {
+                        possibleSegments[i].Remove('g');
+                    }
+                    else
+                    {
+                        possibleSegments[i].Remove('d');
+                    }
+                }
+            }
+
+            Dictionary<char, char> translation = new Dictionary<char, char>();// = possibleSegments.ToList().ToDictionary((x, i) => (char)('a' + i), x => x.First());
+            for (int i = 0; i < 7; i++)
+            {
+                translation[(char)('a' + i)] = possibleSegments[i].First();
+            }
+
+            string result = "";
+
+            for (int i = 0; i < 4; i++)
+            {
+                string toTranslate = input.Item2[i];
+                List<char> translated = toTranslate.Select(x => translation[x]).ToList();
+                translated.Sort();
+                string finalTranslation = string.Join("", translated);
+                result += validCombinations.ToList().IndexOf(finalTranslation);
+            }
+
+            return result;
         }
     }
 }
