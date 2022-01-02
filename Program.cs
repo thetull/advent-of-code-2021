@@ -12,7 +12,7 @@ namespace AdventOfCode2021
     {
         static void Main(string[] args)
         {
-            Day8();
+            Day11A();
         }
 
         static void Day1()
@@ -27,8 +27,10 @@ namespace AdventOfCode2021
                 if (depths[i - 1] < depths[i])
                     counter++;
             }
+
             Console.WriteLine(counter);
         }
+
         static void Day1B()
         {
             string fileLocation = @"M:\AoC2021Data\Day1.txt";
@@ -41,6 +43,7 @@ namespace AdventOfCode2021
                 if (depths[i - 3] < depths[i])
                     counter++;
             }
+
             Console.WriteLine(counter);
         }
 
@@ -69,7 +72,8 @@ namespace AdventOfCode2021
                         break;
                 }
             }
-            Console.WriteLine(depth*distance);
+
+            Console.WriteLine(depth * distance);
         }
 
         static void Day2B()
@@ -99,6 +103,7 @@ namespace AdventOfCode2021
                         break;
                 }
             }
+
             Console.WriteLine(depth * distance);
         }
 
@@ -119,6 +124,7 @@ namespace AdventOfCode2021
                 gamma = gamma * 2 + ((bits > instructions.Count / 2) ? 1 : 0);
                 epsilon = epsilon * 2 + ((bits > instructions.Count / 2) ? 0 : 1);
             }
+
             Console.WriteLine(gamma * epsilon);
         }
 
@@ -173,7 +179,7 @@ namespace AdventOfCode2021
                 int firstLine = i * 6 + 2;
                 for (int j = 0; j < 5; j++)
                 {
-                    matrix[i,j] = instructions[firstLine + j].Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray();
+                    matrix[i, j] = instructions[firstLine + j].Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray();
                 }
             }
 
@@ -203,7 +209,7 @@ namespace AdventOfCode2021
                 }
             }
 
-            Console.WriteLine(sumUnmarked * calledNumbers[callCount-1]);
+            Console.WriteLine(sumUnmarked * calledNumbers[callCount - 1]);
         }
 
         private static int Winner(int[] calledNumbers, int[,][] boards)
@@ -264,7 +270,7 @@ namespace AdventOfCode2021
                 winIndex = LastWinner(calledNumbers.Take(callCount).ToArray(), matrix);
             }
 
-            int[] markedNumbers = calledNumbers.Take(callCount+1).ToArray();
+            int[] markedNumbers = calledNumbers.Take(callCount + 1).ToArray();
 
             int sumUnmarked = 0;
 
@@ -323,6 +329,7 @@ namespace AdventOfCode2021
 
             return loserIndex;
         }
+
         static void Day5A()
         {
             string fileLocation = @"M:\AoC2021Data\Day5A.txt";
@@ -335,8 +342,8 @@ namespace AdventOfCode2021
             int[,] map = new int[xSize, ySize];
 
             for (int i = 0; i < xSize; i++)
-                for (int j = 0; j < ySize; j++)
-                    map[i, j] = 0;
+            for (int j = 0; j < ySize; j++)
+                map[i, j] = 0;
 
             foreach (Tuple<Point, Point> vent in vents)
             {
@@ -350,6 +357,7 @@ namespace AdventOfCode2021
                         map[vent.Item1.X, i]++;
                     }
                 }
+
                 if (vent.Item1.Y == vent.Item2.Y)
                 {
                     int lesserY = Math.Min(vent.Item1.X, vent.Item2.X);
@@ -363,11 +371,12 @@ namespace AdventOfCode2021
                 // if (vent.Item1.X != vent.Item2.X && vent.Item1.Y != vent.Item2.Y)
                 //     continue;
             }
+
             int result = 0;
             for (int i = 0; i < xSize; i++)
-                for (int j = 0; j < ySize; j++)
-                    if (map[i, j] >= 2)
-                        result++;
+            for (int j = 0; j < ySize; j++)
+                if (map[i, j] >= 2)
+                    result++;
             Console.WriteLine(result);
         }
 
@@ -382,8 +391,8 @@ namespace AdventOfCode2021
             int ySize = vents.Max(x => Math.Max(x.Item1.Y, x.Item2.Y)) + 1;
             int[,] map = new int[xSize, ySize];
             for (int i = 0; i < xSize; i++)
-                for (int j = 0; j < ySize; j++)
-                    map[i, j] = 0;
+            for (int j = 0; j < ySize; j++)
+                map[i, j] = 0;
 
             foreach (Tuple<Point, Point> vent in vents)
             {
@@ -431,6 +440,7 @@ namespace AdventOfCode2021
                 // if (vent.Item1.X != vent.Item2.X && vent.Item1.Y != vent.Item2.Y)
                 //     continue;
             }
+
             int result = map.Cast<int>().Count(x => x >= 2);
             // for (int i = 0; i < xSize; i++)
             //     for (int j = 0; j < ySize; j++)
@@ -502,7 +512,7 @@ namespace AdventOfCode2021
                 }
             }
             //int sum = startingConditions.Sum(x => Math.Abs(targetPosition - x));
-            
+
             Console.WriteLine(bestResult);
         }
 
@@ -537,18 +547,18 @@ namespace AdventOfCode2021
 
             List<string> results = data.Select(Disambiguate).ToList();
 
-            Console.WriteLine(results.Sum(x => x.Count(c => c=='1' || c=='4' || c=='7' || c=='8')));
+            Console.WriteLine(results.Sum(x => x.Count(c => c == '1' || c == '4' || c == '7' || c == '8')));
             Console.WriteLine(results.Sum(int.Parse));
         }
 
         static string Disambiguate(Tuple<List<string>, List<string>> input)
         {
-            HashSet<int>[] possibleDigits = new HashSet<int>[10].Select(x => new HashSet<int>(new []{0,1,2,3,4,5,6,7,8,9})).ToArray();
-            HashSet<char>[] possibleSegments = new HashSet<char>[7].Select(x => new HashSet<char>(new[] { 'a','b','c','d','e','f','g' })).ToArray();
+            HashSet<int>[] possibleDigits = new HashSet<int>[10].Select(x => new HashSet<int>(new[]{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 })).ToArray();
+            HashSet<char>[] possibleSegments = new HashSet<char>[7].Select(x => new HashSet<char>(new[]{ 'a', 'b', 'c', 'd', 'e', 'f', 'g' })).ToArray();
 
             int[] segmentUsages = new[]{ 8, 6, 8, 7, 4, 9, 7 };
 
-            string[] validCombinations = { "abcefg", "cf", "acdeg", "acdfg", "bcdf", "abdfg", "abdefg", "acf", "abcdefg", "abcdfg" };
+            string[] validCombinations ={ "abcefg", "cf", "acdeg", "acdfg", "bcdf", "abdfg", "abdefg", "acf", "abcdefg", "abcdfg" };
 
             for (int i = 0; i < 10; i++)
             {
@@ -591,7 +601,8 @@ namespace AdventOfCode2021
                     if (input.Item1[onesIndex].Contains(character))
                     {
                         possibleSegments[i].Remove('a');
-                    }else
+                    }
+                    else
                     {
                         possibleSegments[i].Remove('c');
                     }
@@ -610,7 +621,7 @@ namespace AdventOfCode2021
                 }
             }
 
-            Dictionary<char, char> translation = new Dictionary<char, char>();// = possibleSegments.ToList().ToDictionary((x, i) => (char)('a' + i), x => x.First());
+            Dictionary<char, char> translation = new Dictionary<char, char>(); // = possibleSegments.ToList().ToDictionary((x, i) => (char)('a' + i), x => x.First());
             for (int i = 0; i < 7; i++)
             {
                 translation[(char)('a' + i)] = possibleSegments[i].First();
@@ -628,6 +639,243 @@ namespace AdventOfCode2021
             }
 
             return result;
+        }
+
+        static void Day9A()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day9A.txt";
+            string[] data = File.ReadAllLines(fileLocation);
+
+            int[,] map = new int[data[0].Length, data.Length];
+
+            for (int i = 0; i < data[0].Length; i++)
+            {
+                for (int j = 0; j < data.Length; j++)
+                {
+                    map[i, j] = int.Parse(data[j][i].ToString());
+                }
+            }
+
+            int risk = 0;
+
+            for (int i = 0; i < data[0].Length; i++)
+            {
+                for (int j = 0; j < data.Length; j++)
+                {
+                    bool isLowest = true;
+                    int depth = map[i, j];
+                    Point[] pointsToCheck ={ new Point(i, j + 1), new Point(i, j - 1), new Point(i + 1, j), new Point(i - 1, j) };
+
+                    foreach (Point point in pointsToCheck)
+                    {
+                        int x = point.X;
+                        int y = point.Y;
+                        if (x < 0 || x >= data[0].Length || y < 0 || y >= data.Length)
+                            continue;
+                        if (depth >= map[x, y])
+                            isLowest = false;
+                    }
+
+                    if (isLowest)
+                        risk += (depth + 1);
+                }
+            }
+
+            Console.WriteLine(risk);
+            // List<string> results = data.Select(Disambiguate).ToList();
+            //
+            // Console.WriteLine(results.Sum(x => x.Count(c => c == '1' || c == '4' || c == '7' || c == '8')));
+            // Console.WriteLine(results.Sum(int.Parse));
+        }
+
+        static void Day9B()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day9A.txt";
+            string[] data = File.ReadAllLines(fileLocation);
+
+            int[,] map = new int[data.Length, data[0].Length];
+            bool[,] basined = new bool[data.Length, data[0].Length];
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                for (int j = 0; j < data[0].Length; j++)
+                {
+                    map[i, j] = int.Parse(data[i][j].ToString());
+                    basined[i, j] = map[i, j] == 9;
+                }
+            }
+
+            List<int> basinSizes = new List<int>();
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                for (int j = 0; j < data[0].Length; j++)
+                {
+                    if (!basined[i, j])
+                    {
+                        HashSet<Point> pointsInBasin = new HashSet<Point>{ new Point(i, j) };
+                        basined[i, j] = true;
+                        int currentSize = int.MinValue;
+
+                        while (pointsInBasin.Count != currentSize)
+                        {
+                            currentSize = pointsInBasin.Count;
+                            foreach (Point point in pointsInBasin.ToList())
+                            {
+                                Point[] pointsToCheck ={ new Point(point.X, point.Y + 1), new Point(point.X, point.Y - 1), new Point(point.X + 1, point.Y), new Point(point.X - 1, point.Y) };
+                                foreach (Point adjacentPoint in pointsToCheck)
+                                {
+                                    int x = adjacentPoint.X;
+                                    int y = adjacentPoint.Y;
+                                    if (x < 0 || x >= data.Length || y < 0 || y >= data[0].Length)
+                                        continue;
+                                    if (map[x, y] != 9)
+                                    {
+                                        pointsInBasin.Add(adjacentPoint);
+                                        basined[x, y] = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        basinSizes.Add(pointsInBasin.Count);
+                    }
+                }
+            }
+
+            basinSizes.Sort();
+            Console.WriteLine(Math.Round(Math.Exp(basinSizes.Skip(basinSizes.Count - 3).Select(x => Math.Log(x)).Sum())));
+            // List<string> results = data.Select(Disambiguate).ToList();
+            //
+            // Console.WriteLine(results.Sum(x => x.Count(c => c == '1' || c == '4' || c == '7' || c == '8')));
+            // Console.WriteLine(results.Sum(int.Parse));
+        }
+
+        static void Day10A()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day10A.txt";
+            string[] data = File.ReadAllLines(fileLocation);
+            string openCharacters = "([{<";
+            Dictionary<char, char> pairs = new Dictionary<char, char>{ { '(', ')' },{ '[', ']' },{ '{', '}' },{ '<', '>' } };
+            Dictionary<char, int> points = new Dictionary<char, int>{ { ')', 3 },{ ']', 57 },{ '}', 1197 },{ '>', 25137 } };
+            List<char> illegalCharacters = new List<char>();
+            int sum = 0;
+
+            foreach (string line in data)
+            {
+                Stack<char> currentStack = new Stack<char>();
+                foreach (char c in line)
+                {
+                    if (openCharacters.Contains(c))
+                        currentStack.Push(pairs[c]);
+                    else
+                    {
+                        char expectation = currentStack.Pop();
+                        if (c == expectation)
+                            continue;
+                        sum += points[c];
+                        break;
+                    }
+                }
+            }
+
+            Console.Write(sum);
+        }
+
+        static void Day10B()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day10A.txt";
+            string[] data = File.ReadAllLines(fileLocation);
+            string openCharacters = "([{<";
+            Dictionary<char, char> pairs = new Dictionary<char, char>{ { '(', ')' },{ '[', ']' },{ '{', '}' },{ '<', '>' } };
+            Dictionary<char, int> points = new Dictionary<char, int>{ { ')', 1 },{ ']', 2 },{ '}', 3 },{ '>', 4 } };
+            List<char> illegalCharacters = new List<char>();
+            List<long> scores = new List<long>();
+
+            foreach (string line in data)
+            {
+                Stack<char> currentStack = new Stack<char>();
+                foreach (char c in line)
+                {
+                    if (openCharacters.Contains(c))
+                        currentStack.Push(pairs[c]);
+                    else
+                    {
+                        char expectation = currentStack.Pop();
+                        if (c != expectation)
+                        {
+                            currentStack.Clear();
+                            break;
+                        }
+                    }
+                }
+
+
+                if (currentStack.Any())
+                {
+                    long partSum = 0;
+                    while (currentStack.Any())
+                    {
+                        char next = currentStack.Pop();
+                        partSum = partSum * 5 + points[next];
+                    }
+
+                    scores.Add(partSum);
+                }
+            }
+
+            scores.Sort();
+            Console.Write(scores[(scores.Count / 2)]);
+        }
+
+        static void Day11A()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day11A.txt";
+            string[] data = File.ReadAllLines(fileLocation);
+
+
+            int[,] map = new int[data.Length, data[0].Length];
+            bool[,] hasFlashed = new bool[data.Length, data[0].Length];
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                for (int j = 0; j < data[0].Length; j++)
+                {
+                    map[i, j] = int.Parse(data[i][j].ToString());
+                    hasFlashed[i, j] = false;
+                }
+            }
+
+            for (int i = 0; i < 100; i++)
+            {
+                map = ForEach2Dimensional(map, x => x + 1);
+            }
+        }
+
+        static T[,] ForEach2Dimensional<T>(T[,] input, Func<T, T> action)
+        {
+            T[,] output = new T[input.GetUpperBound(0), input.GetUpperBound(1)];
+            for (int i = 0; i <= input.GetUpperBound(0); i++)
+            {
+                for (int j = 0; j <= input.GetUpperBound(1); j++)
+                {
+                    output[i, j] = action(input[i, j]);
+                }
+            }
+            return output;
+        }
+
+        static T[,] ForEach2Dimensional<T>(T[,] input, Func<int, int, T, T> action)
+        {
+            T[,] output = new T[input.GetUpperBound(0), input.GetUpperBound(1)];
+            for (int i = 0; i <= input.GetUpperBound(0); i++)
+            {
+                for (int j = 0; j <= input.GetUpperBound(1); j++)
+                {
+                    output[i, j] = action(i, j, input[i, j]);
+                }
+            }
+            return output;
         }
     }
 }
