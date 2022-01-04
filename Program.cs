@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace AdventOfCode2021
 {
@@ -12,7 +10,7 @@ namespace AdventOfCode2021
     {
         static void Main(string[] args)
         {
-            Day11A();
+            Day12B();
         }
 
         static void Day1()
@@ -846,15 +844,73 @@ namespace AdventOfCode2021
                 }
             }
 
-            for (int i = 0; i < 100; i++)
+            int totalFlashed = 0;
+            for (int k = 0; k < 100; k++)
             {
                 map = ForEach2Dimensional(map, x => x + 1);
+                hasFlashed = ForEach2Dimensional(hasFlashed, x => false);
+                bool iterate;
+                do
+                {
+                    iterate = false;
+                    for (int i = 0; i < data.Length; i++)
+                    {
+                        for (int j = 0; j < data[0].Length; j++)
+                        {
+                            if (map[i, j] > 9 && !hasFlashed[i, j])
+                            {
+                                iterate = true;
+                                hasFlashed[i, j] = true;
+                                for (int l = -1; l <=1; l++)
+                                {
+                                    for (int m = -1; m <= 1; m++)
+                                    {
+                                        int x = i + l;
+                                        int y = j + m;
+                                        if (!(x < 0 || x >= data.Length || y < 0 || y >= data[0].Length))
+                                        {
+                                            map[x, y]++;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                while (iterate);
+
+                map = ForEach2Dimensional(map, x =>
+                {
+                    if (x > 9)
+                    {
+                        totalFlashed++;
+                        return 0;
+                    }
+
+                    return x;
+                });
+
+                Console.WriteLine(totalFlashed);
             }
         }
 
         static T[,] ForEach2Dimensional<T>(T[,] input, Func<T, T> action)
         {
+            T[,] output = new T[input.GetUpperBound(0)+1, input.GetUpperBound(1)+1];
+            for (int i = 0; i <= input.GetUpperBound(0); i++)
+            {
+                for (int j = 0; j <= input.GetUpperBound(1); j++)
+                {
+                    output[i, j] = action(input[i, j]);
+                }
+            }
+            return output;
+        }
+
+        static T[,] ForEach2DimensionalAdjacent<T>(T[,] input, int row, int column, Func<T, T> action)
+        {
             T[,] output = new T[input.GetUpperBound(0), input.GetUpperBound(1)];
+            Point[] adjacentPoints = new Point[8];
             for (int i = 0; i <= input.GetUpperBound(0); i++)
             {
                 for (int j = 0; j <= input.GetUpperBound(1); j++)
@@ -876,6 +932,180 @@ namespace AdventOfCode2021
                 }
             }
             return output;
+        }
+
+        static void Day11B()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day11A.txt";
+            string[] data = File.ReadAllLines(fileLocation);
+
+
+            int[,] map = new int[data.Length, data[0].Length];
+            bool[,] hasFlashed = new bool[data.Length, data[0].Length];
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                for (int j = 0; j < data[0].Length; j++)
+                {
+                    map[i, j] = int.Parse(data[i][j].ToString());
+                    hasFlashed[i, j] = false;
+                }
+            }
+
+            int totalFlashed = 0;
+            for (int k = 0; k < 10000; k++)
+            {
+                map = ForEach2Dimensional(map, x => x + 1);
+                hasFlashed = ForEach2Dimensional(hasFlashed, x => false);
+                bool iterate;
+                do
+                {
+                    iterate = false;
+                    for (int i = 0; i < data.Length; i++)
+                    {
+                        for (int j = 0; j < data[0].Length; j++)
+                        {
+                            if (map[i, j] > 9 && !hasFlashed[i, j])
+                            {
+                                iterate = true;
+                                hasFlashed[i, j] = true;
+                                for (int l = -1; l <= 1; l++)
+                                {
+                                    for (int m = -1; m <= 1; m++)
+                                    {
+                                        int x = i + l;
+                                        int y = j + m;
+                                        if (!(x < 0 || x >= data.Length || y < 0 || y >= data[0].Length))
+                                        {
+                                            map[x, y]++;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                while (iterate);
+
+                map = ForEach2Dimensional(map, x =>
+                {
+                    if (x > 9)
+                    {
+                        totalFlashed++;
+                        return 0;
+                    }
+
+                    return x;
+                });
+                // int totalFlashes = 0;
+                // ForEach2Dimensional(hasFlashed, x =>
+                // {
+                //     totalFlashes += x ? 1 : 0;
+                //     return x;
+                // });
+                bool result = true;
+                foreach (bool b in hasFlashed)
+                    if (!b)
+                    {
+                        result = false;
+                        break;
+                    }
+
+                if (result)
+                {
+                    Console.WriteLine(k+1);
+                    break;
+                }
+                // if ((totalFlashes == (hasFlashed.GetUpperBound(0) + 1) * (hasFlashed.GetUpperBound(1) + 1)))
+                //     break;
+
+                Console.WriteLine(totalFlashed);
+            }
+        }
+
+        static void Day12A()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day12A.txt";
+            string[] data = File.ReadAllLines(fileLocation);
+
+            Graph g = new Graph();
+            foreach (string s in data)
+            {
+                string[] nodes = s.Split('-');
+                g.CreateEdgeBetween(nodes[1], nodes[0], 1);
+            }
+
+            List<List<string>> result = Explore(new List<string>{"start"}, g);
+
+            Console.WriteLine(result.Count);
+        }
+
+        private static List<List<string>> Explore(List<string> currentPath, Graph g)
+        {
+            if (currentPath.Last() == "end")
+                return new List<List<string>>{ currentPath };
+            HashSet<string> nextDestination = g.GetConnectedIdentifiers(currentPath.Last());
+            List<List<string>> result = new List<List<string>>();
+            foreach (string destination in nextDestination)
+            {
+                if (destination == destination.ToLowerInvariant())
+                    if (currentPath.Contains(destination))
+                        continue;
+                List<string> nextPath = currentPath.ToList();
+                nextPath.Add(destination);
+                result.AddRange(Explore(nextPath, g));
+            }
+
+            return result;
+        }
+
+        static void Day12B()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day12A.txt";
+            string[] data = File.ReadAllLines(fileLocation);
+
+            Graph g = new Graph();
+            foreach (string s in data)
+            {
+                string[] nodes = s.Split('-');
+                g.CreateEdgeBetween(nodes[1], nodes[0], 1);
+            }
+
+            List<List<string>> result = ExploreB(new List<string> { "start" }, g, true);
+
+            Console.WriteLine(result.Count);
+        }
+
+        private static List<List<string>> ExploreB(List<string> currentPath, Graph g, bool canDoubleVisit)
+        {
+            if (currentPath.Last() == "end")
+                return new List<List<string>> { currentPath };
+            HashSet<string> nextDestination = g.GetConnectedIdentifiers(currentPath.Last());
+            List<List<string>> result = new List<List<string>>();
+            foreach (string destination in nextDestination)
+            {
+                bool nextDoubleVisit = canDoubleVisit;
+                if (destination == destination.ToLowerInvariant())
+                    if (currentPath.Contains(destination))
+                    {
+                        if (destination == "start")
+                            continue;
+                        if (canDoubleVisit)
+                        {
+                            nextDoubleVisit = false;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+
+                List<string> nextPath = currentPath.ToList();
+                nextPath.Add(destination);
+                result.AddRange(ExploreB(nextPath, g, nextDoubleVisit));
+            }
+
+            return result;
         }
     }
 }
