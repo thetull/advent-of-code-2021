@@ -62,6 +62,15 @@ namespace AdventOfCode2021
             return GetConnectedIdentifiers(new Vertex(identifier));
         }
 
+        public HashSet<Edge> getVertexEdges(Vertex v)
+        {
+            HashSet<Edge> temp = Connections[v];
+            if (temp == null)
+                return null;
+            HashSet<Edge> copy = new HashSet<Edge>(temp);
+            return copy;
+        }
+
         private void AddEdge(Edge e)
         {
             if (e == null)
@@ -81,6 +90,66 @@ namespace AdventOfCode2021
             Connections[v2].Add(e);
 
             Edges.Add(e);
+        }
+
+        public int DistanceBetween(Vertex origin, Vertex destination)
+        {
+            Dictionary<Vertex, int> costs = new Dictionary<Vertex, int>();
+            HashSet<Vertex> completedVertices = new HashSet<Vertex>();
+            costs.Add(origin, 0);
+            Vertex current = origin;
+            int currentDistance = 0;
+            while (!current.Equals(destination))
+            {
+                //System.out.println("Pre Distance: "+currentDistance);
+                //System.out.println(current.getIdentifier());
+                foreach (Edge e in this.getVertexEdges(current))
+                {
+                    
+                    Vertex newVertex = e.getVertices().Item2;
+                    if (completedVertices.Contains(newVertex))
+                        continue;
+                    if (!costs.ContainsKey(newVertex))
+                    {
+                        costs[newVertex] = currentDistance + e.Distance;
+                    }
+                    else
+                    {
+                        int currentCost = costs[newVertex];
+                        if (currentDistance + e.Distance < currentCost)
+                        {
+                            costs[newVertex] = currentDistance + e.Distance;
+                        }
+                    }
+                }
+                completedVertices.Add(current);
+                Tuple<Vertex, int> best = null;
+                foreach (Vertex candidate in costs.Keys)
+                {
+                    if (completedVertices.Contains(candidate))
+                    {
+                        continue;
+                    }
+
+                    int vertexCost = costs[candidate];
+                    if (best == null)
+                    {
+                        best = new Tuple<Vertex, int>(candidate, vertexCost);
+                        continue;
+                    }
+
+                    if (vertexCost < best.Item2)
+                    {
+                        best = new Tuple<Vertex, int>(candidate, vertexCost);
+                        continue;
+                    }
+                }
+                current = best.Item1;
+                currentDistance = best.Item2;
+                //System.out.println("Current Distance: "+currentDistance);
+            }
+
+            return currentDistance;
         }
     }
 
@@ -132,6 +201,11 @@ namespace AdventOfCode2021
             Origin = origin;
             Destination = destination;
             Distance = distance;
+        }
+
+        public Tuple<Vertex, Vertex> getVertices()
+        {
+            return new Tuple<Vertex, Vertex>(this.Origin, this.Destination);
         }
 
         public bool Equals(Edge other)

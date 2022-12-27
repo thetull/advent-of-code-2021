@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 namespace AdventOfCode2021
 {
@@ -10,7 +12,7 @@ namespace AdventOfCode2021
     {
         static void Main(string[] args)
         {
-            Day12B();
+            Day15B();
         }
 
         static void Day1()
@@ -1107,5 +1109,272 @@ namespace AdventOfCode2021
 
             return result;
         }
+
+        static void Day13()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day13.txt";
+            string[] data = File.ReadAllLines(fileLocation);
+
+            List<Point> points = new List<Point>();
+
+            int i = 0;
+            while(data[i].Trim().Length != 0)
+            {
+                string[] coordinates = data[i].Split(',');
+                points.Add(new Point(int.Parse(coordinates[0]), int.Parse(coordinates[1])));
+                i++;
+            }
+            Console.WriteLine(points.Count);
+
+            List<Tuple<string, int>> folds = new List<Tuple<string, int>>();
+
+            for(int j = i+1; j < data.Length; j++)
+            {
+                string[] fold = data[j]["fold along ".Length..].Split('=');
+                folds.Add(new Tuple<string, int>(fold[0], int.Parse(fold[1])));
+            }
+
+            int maxX = folds.Where(x => x.Item1 == "x").Max(y => y.Item2) * 2 + 1;
+            int maxY = folds.Where(x => x.Item1 == "y").Max(y => y.Item2) * 2 + 1;
+            bool[,] paper = new bool[maxX, maxY];
+
+            for (int j = 0; j < maxX; j++)
+            {
+                for (int k = 0; k < maxY; k++)
+                {
+                    paper[j, k] = points.Contains(new Point(j, k));
+                }
+            }
+
+            foreach (Tuple<string, int> fold in folds)
+            {
+                bool[,] paper2;
+                if (fold.Item1 == "x")
+                {
+                    maxX = (maxX - 1) / 2;
+                    paper2 = new bool[maxX, maxY];
+                    for (int j = 0; j < maxX; j++)
+                    {
+                        for (int k = 0; k < maxY; k++)
+                        {
+                            paper2[j, k] = paper[j, k] || paper[2 * maxX - j, k];
+                        }
+                    }
+
+                }
+
+                else
+                {
+                    maxY = (maxY - 1) / 2;
+                    paper2 = new bool[maxX, maxY];
+                    for (int j = 0; j < maxX; j++)
+                    {
+                        for (int k = 0; k < maxY; k++)
+                        {
+                            paper2[j, k] = paper[j, k] || paper[j, 2 * maxY - k];
+                        }
+                    }
+                }
+                paper = paper2;
+                int total = paper.Cast<bool>().Count(b => b);
+                Console.WriteLine(total);
+            }
+
+            for (int k = 0; k < maxY; k++)
+            {
+                for (int j = 0; j < maxX; j++)
+                {
+                        Console.Write(paper[j, k] ? 'x' : ' ');
+                }
+                Console.Write('\n');
+            }
+        }
+
+        static void Day14A()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day14.txt";
+            string[] data = File.ReadAllLines(fileLocation);
+
+            StringBuilder sb = new StringBuilder(data[0], 50000);
+
+            Dictionary<string, string> subs = new Dictionary<string, string>();
+            foreach (string s in data.Skip(2))
+            {
+                subs[s.Substring(0,2)] = s.Substring(6,1);
+            }
+
+            Console.WriteLine(sb.ToString());
+            for (int j = 0; j < 10; j++)
+            {
+             
+                for (int i = sb.Length-1; i > 0; i--) 
+                {
+                    string pair = sb[i - 1].ToString() + sb[i];
+                    if (subs.ContainsKey(pair))
+                        sb.Insert(i, subs[pair]);
+                }
+                Console.WriteLine(sb.ToString());
+            }
+
+            Dictionary<char, int> charCounts = new Dictionary<char, int>();
+            foreach (char c in sb.ToString())
+            {
+                if (!charCounts.ContainsKey(c))
+                    charCounts[c] = 0;
+                charCounts[c]++;
+            }
+
+            int biggest = charCounts.Values.Max();
+            int smallest = charCounts.Values.Min();
+            Console.WriteLine($"Length: {sb.Length} Biggest: {biggest} Smallest: {smallest} Answer: {biggest - smallest}");
+        }
+
+        static void Day14B()
+        {
+            static void Accumulate(Dictionary<string, long> polymer2, string pair, long count)
+            {
+                if (polymer2.ContainsKey(pair))
+                    polymer2[pair] += count;
+                else
+                    polymer2[pair] = count;
+            }
+
+            string fileLocation = @"M:\AoC2021Data\Day14.txt";
+            string[] data = File.ReadAllLines(fileLocation);
+
+            Dictionary<string, long> polymer = new Dictionary<string, long>();
+            Dictionary<string, string> subs = new Dictionary<string, string>();
+            foreach (string s in data.Skip(2))
+            {
+                subs[s.Substring(0, 2)] = s.Substring(6, 1);
+            }
+
+            string original = data[0];
+            char lastLetter = data[0].Last();
+            for (int i = original.Length - 1; i > 0; i--)
+            {
+                string pair = original[i - 1].ToString() + original[i];
+                Accumulate(polymer, pair, 1);
+            }
+
+            for (int j = 0; j < 40; j++)
+            {
+                Dictionary<string, long> polymer2 = new Dictionary<string, long>();
+                foreach (KeyValuePair<string, long> keyValuePair in polymer)
+                {
+                    if (subs.ContainsKey(keyValuePair.Key))
+                    {
+                        string expanded = keyValuePair.Key[0] + subs[keyValuePair.Key] + keyValuePair.Key[1];
+                        Accumulate(polymer2, expanded.Substring(0, 2), keyValuePair.Value);
+                        Accumulate(polymer2, expanded.Substring(1, 2), keyValuePair.Value);
+                    }
+                    else
+                    {
+                        Accumulate(polymer2, keyValuePair.Key, keyValuePair.Value);
+                    }
+                }
+
+                polymer = polymer2;
+            }
+
+            Dictionary<char, long> charCounts = new Dictionary<char, long>();
+            foreach (KeyValuePair<string, long> keyValuePair in polymer)
+            {
+                char c = keyValuePair.Key[0];
+                if (!charCounts.ContainsKey(c))
+                    charCounts[c] = 0;
+                charCounts[c] += keyValuePair.Value;
+            }
+
+            charCounts[lastLetter]++;
+            long biggest = charCounts.Values.Max();
+            long smallest = charCounts.Values.Min();
+            Console.WriteLine($"Length: {original.Length} Biggest: {biggest} Smallest: {smallest} Answer: {biggest - smallest}");
+        }
+
+        static void Day15Wrong()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day15.txt";
+            string[] data = File.ReadAllLines(fileLocation);
+            int width = data[0].Length;
+            int[] partialRisks = new int[width];
+            partialRisks[0] = 0;
+            for (int i = 1; i < width; i++)
+                partialRisks[i] = partialRisks[i - 1] + int.Parse(data[0][i].ToString());
+            for (int j = 1; j < data.Length; j++)
+            {
+                int[] partialRisks2 = new int[width];
+                partialRisks2[0]=partialRisks[0] + int.Parse(data[j][0].ToString());
+                for (int i = 1; i < width; i++)
+                    partialRisks2[i] = Math.Min(partialRisks[i], partialRisks2[i - 1]) + int.Parse(data[j][i].ToString());
+                partialRisks = partialRisks2;
+            }
+
+            Console.WriteLine("Answer: " + partialRisks.Last());
+            Console.ReadLine();
+        }
+
+        static void Day15()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day15.txt";
+            string[] data = File.ReadAllLines(fileLocation);
+            Graph g = new Graph();
+            for (int j = 0; j < data.Length; j++)
+            {
+                for (int i = 0; i < data[0].Length; i++)
+                {
+                    if (i < data[0].Length - 1)
+                        g.CreateEdgeBetween($"{i}x{j}", $"{i + 1}x{j}", int.Parse(data[i + 1][j].ToString()));
+                    if (i > 0)
+                        g.CreateEdgeBetween($"{i}x{j}", $"{i - 1}x{j}", int.Parse(data[i - 1][j].ToString()));
+
+                    if (j < data.Length - 1)
+                        g.CreateEdgeBetween($"{i}x{j}", $"{i}x{j + 1}", int.Parse(data[i][j + 1].ToString()));
+                    if (j > 0)
+                        g.CreateEdgeBetween($"{i}x{j}", $"{i}x{j - 1}", int.Parse(data[i][j - 1].ToString()));
+                }
+            }
+ 
+            Console.WriteLine("Answer: " + g.DistanceBetween(new Vertex("0x0"), new Vertex($"{data[0].Length - 1}x{data.Length-1}")));
+            Console.ReadLine();
+        }
+
+        static void Day15B()
+        {
+            string fileLocation = @"M:\AoC2021Data\Day15.txt";
+            string[] data = File.ReadAllLines(fileLocation);
+            int tileWidth = data[0].Length;
+            int tileHeight = data.Length;
+            int ValueCost(int x, int y)
+            {
+                int relativeX = x % tileWidth;
+                int relativeY = y % tileHeight;
+                int tileX = x / tileWidth;
+                int tileY = y / tileHeight;
+
+                return (int.Parse(data[relativeX][relativeY].ToString()) + tileX + tileY -1) % 9 + 1;
+            }
+
+            Graph g = new Graph();
+            for (int j = 0; j < data.Length*5; j++)
+            {
+                for (int i = 0; i < data[0].Length * 5; i++)
+                {
+                    if (i < data[0].Length * 5 - 1)
+                        g.CreateEdgeBetween($"{i}x{j}", $"{i + 1}x{j}", ValueCost(i + 1, j));
+                    if (i > 0)
+                        g.CreateEdgeBetween($"{i}x{j}", $"{i - 1}x{j}", ValueCost(i - 1, j));
+
+                    if (j < data.Length * 5 - 1)
+                        g.CreateEdgeBetween($"{i}x{j}", $"{i}x{j + 1}", ValueCost(i, j + 1));
+                    if (j > 0)
+                        g.CreateEdgeBetween($"{i}x{j}", $"{i}x{j - 1}", ValueCost(i, j - 1));
+                }
+            }
+
+            Console.WriteLine("Answer: " + g.DistanceBetween(new Vertex("0x0"), new Vertex($"{data[0].Length*5 - 1}x{data.Length*5 - 1}")));
+            Console.ReadLine();
+        }
+
     }
 }
